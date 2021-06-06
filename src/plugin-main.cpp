@@ -136,7 +136,7 @@ void stinger_3D_transition::registerInputSource()
     obs_source_info* source_2 = &SOURCE_2;
     source_2->id = "3d_transition";
     source_2->type = OBS_SOURCE_TYPE_TRANSITION;
-    source_2->get_name = [](void*) {return "Transition 3d";};
+    source_2->get_name = [](void*) {return obs_module_text("TransitionName");};
     source_2->create = [](obs_data_t *settings, obs_source_t* source){return static_cast<void*>(new stinger_3D_transition(settings, source));};
     source_2->get_properties = [](void* data){return static_cast<stinger_3D_transition *>(data)->getProperties();};
     source_2->video_render = [](void* data, gs_effect_t* effect){return static_cast<stinger_3D_transition *>(data)->render(effect);};
