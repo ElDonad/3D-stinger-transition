@@ -13,7 +13,9 @@ trigger:
 jobs:
 - job: 'Build_Windows'
   pool:
-    vmImage: 'windows-2019'
+    #vmImage: 'windows-2019'
+    name: 'default'
+    demands: agent.os -equals Windows_NT
   variables:
     build_config: RelWithDebInfo
     DepsBasePath: 'D:\obsdependencies'
