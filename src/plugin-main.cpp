@@ -218,7 +218,7 @@ void stinger_3D_transition::getDefaults(obs_data_t* data)
 
 OBS_DECLARE_MODULE()
 
-OBS_MODULE_USE_DEFAULT_LOCALE("3D stinger transition", "fr-FR")
+OBS_MODULE_USE_DEFAULT_LOCALE("3D stinger transition", "en-US")
 OBS_MODULE_AUTHOR("ElDonad")
 
 bool obs_module_load(){
