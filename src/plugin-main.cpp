@@ -184,7 +184,7 @@ stinger_3D_transition::stinger_3D_transition(obs_data_t* settings, obs_source_t*
     bfree(file);
     blog(LOG_INFO, "Stream transition created !");
 
-    obs_source_update(source, settings);
+    obs_source_update(this->source, settings);
     this->media_source = nullptr;
 
     bfree(error_string);
@@ -213,7 +213,7 @@ obs_properties_t*stinger_3D_transition::getProperties(){
 
 void stinger_3D_transition::getDefaults(obs_data_t* data)
 {
-    obs_data_set_int(data, "delay", 20);
+    obs_data_set_default_int(data, "delay", 20);
 }
 
 OBS_DECLARE_MODULE()
