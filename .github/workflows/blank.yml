@@ -106,8 +106,8 @@ jobs:
         run: ${{github.workspace}}/ci/windows/prepare-obs-windows.cmd
         env:
           build_config: ${{env.BUILD_CONFIG}}
-          DepsPath32: ${{env.DEPS_PATH_32}}
-          DepsPath64: ${{env.DEPS_PATH_64}}
+          DepsPath32: ${{env.DEPS_BASE_PATH_32}}
+          DepsPath64: ${{env.DEPS_BASE_PATH_64}}
           QTDIR32: ${{env.QTDIR32}}
           QTDIR64: ${{env.QTDIR64}}
           OBSPath: ${{env.OBS_PATH}}
@@ -117,6 +117,7 @@ jobs:
         
       - name: Build OBS studio 64bits
         run: msbuild /m /p:Configuration=${{env.BUILD_CONFIG}} ${{env.OBS_PATH}}\build64\obs-studio.sln
+        
       
       - name: CMake plugin
         run: ${{github.workspace}}/ci/windows/prepare-windows.cmd
