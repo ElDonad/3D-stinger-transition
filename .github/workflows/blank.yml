@@ -92,7 +92,9 @@ jobs:
           
       - name: Download obs studio dependencies
         run: ${{github.workspace}}/ci/windows/download-obs-deps.cmd
-        
+        env:
+          OBSPath: ${{env.OBS_PATH}}
+          
       - name: Restore cached OBS build
         uses: actions/cache@v2.1.6
         with:
