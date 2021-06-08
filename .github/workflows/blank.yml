@@ -128,7 +128,7 @@ jobs:
           OBSPath: ${{env.OBS_PATH}}
       
       - name: Build plugin (64bit)
-        run: msbuild /m /p:Configuration=${{env.BUILD_CONFIG}} ${{github.workspace}}\build64\obs-studio.sln
+        run: msbuild /m /p:Configuration=${{env.BUILD_CONFIG}} ${{github.workspace}}\build64\main.sln
       
       - name: Package build
         run: ${{github.workspace}}/ci/windows/package-windows.cmd
