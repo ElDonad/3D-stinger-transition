@@ -17,8 +17,7 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
+  build-ubuntu:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -58,5 +57,83 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GHR_PATH: ${{github.workspace}}/package/
-      
         
+  build-windows:
+    # The type of runner that the job will run on
+    runs-on: windows-latest
+    env:
+      BUILD_CONFIG: RelWithDebInfo
+      DEPS_BASE_PATH: D:\obsdependencies
+      DEPS_BASE_PATH_32: $DEPS_BASE_PATH\win32
+      DEPS_BASE_PATH_64: $DEPS_BASE_PATH\win64
+      QT_BASE_DIR: D:\QtDep
+      QTDIR32: $QT_BASE_DIR\5.10.1\msvc2017
+      QTDIR64: $QT_BASE_DIR\5.10.1\msvc2017_64
+      OBS_PATH: D:\obs_studio
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      # Runs a single command using the runners shell
+      - name: Install Qt
+        run: $GITHUB_WORKSPACE/ci/windows/install-qt-win.cmd
+      
+      - name: Restore cached dependencies
+        uses: actions/cache@v2.1.6
+        with: 
+          path: $DEPS_BASE_PATH
+          key: 'obsdeps'
+          
+      - name: Download obs studio dependencies
+        run: $GITHUB_WORKSPACE/ci/windows/download_obs_deps.cmd
+        
+      - name: Restore cached OBS build
+        uses: actions/cache@v2.1.6
+        with:
+          path: $OBS_PATH
+          key: 'obs'
+      
+      - name: Prepare windows
+        run: $GITHUB_WORKSPACE/ci/windows/prepare-obs-windows.cmd
+        env:
+          build_config: $BUILD_CONFIG
+          DepsPath32: $DEPS_PATH_32
+          DepsPath64: $DEPS_PATH_64
+          QTDIR32: $QTDIR32
+          QTDIR64: $QTDIR64
+          OBSPath: $OBS_PATH
+      
+      - name: Setup msbuild
+        uses: microsoft/setup-msbuild@v1.0.2
+        
+      - name: Build OBS studio 64bits
+        run: msbuild /m /p:Configuration=${{BUILD_CONFIG}} ${{OBS_PATH}}\build64\obs-studio.sln
+      
+      - name: CMake plugin
+        env:
+          build_config: $BUILD_CONFIG
+          QTDIR64: $QTDIR64
+          QTDIR32: $QTDIR32
+          OBSPath: OBS_PATH
+      
+      - name: Build plugin (64bit)
+        run: msbuild /m /p:Configuration=${{BUILD_CONFIG}} ${{github.workspace}}\build64\obs-studio.sln
+      
+      - name: Package build
+        run: $GITHUB_WORKSPACE/ci/windows/package-windows.cmd
+      
+      - name: Export installer
+        uses: actions/upload-artifact@v2.2.3
+        with: 
+          path: ./package
+          name: Windows installer
+
+      - name : Publish binary file
+        if: github.event_name == 'release'
+        uses: fnkr/github-action-ghr@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHR_PATH: ${{github.workspace}}/package/
