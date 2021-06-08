@@ -45,7 +45,7 @@ jobs:
           path: ./package
           name: Built package
       - name : Publish blender file to release
-        if: github.event_name == "release"
+        if: github.event_name == 'release'
         uses: svenstaro/upload-release-action@v2
         with:
           file: $GITHUB_WORKSPACE/transition.blend
@@ -53,7 +53,7 @@ jobs:
           tag: ${{github.ref}}
 
       - name : Publish binary file
-        if: github.event_name == "release"
+        if: github.event_name == 'release'
         uses: Roang-zero1/github-upload-release-artifacts-action@v2.1.0
       
         
