@@ -82,7 +82,7 @@ jobs:
       - name: Install Qt
         run: ${{github.workspace}}/ci/windows/install-qt-win.cmd
         env:
-          QtBaseDir: $QT_BASE_DIR
+          QtBaseDir: ${{env.QT_BASE_DIR}}
       
       - name: Restore cached dependencies
         uses: actions/cache@v2.1.6
@@ -96,18 +96,18 @@ jobs:
       - name: Restore cached OBS build
         uses: actions/cache@v2.1.6
         with:
-          path: $OBS_PATH
+          path: ${{env.OBS_PATH}}
           key: 'obs'
       
       - name: Prepare windows
         run: ${{github.workspace}}/ci/windows/prepare-obs-windows.cmd
         env:
-          build_config: $BUILD_CONFIG
-          DepsPath32: $DEPS_PATH_32
-          DepsPath64: $DEPS_PATH_64
-          QTDIR32: $QTDIR32
-          QTDIR64: $QTDIR64
-          OBSPath: $OBS_PATH
+          build_config: ${{env.BUILD_CONFIG}}
+          DepsPath32: ${{env.DEPS_PATH_32}}
+          DepsPath64: ${{env.DEPS_PATH_64}}
+          QTDIR32: ${{env.QTDIR32}}
+          QTDIR64: ${{env.QTDIR64}}
+          OBSPath: ${{env.OBS_PATH}}
       
       - name: Setup msbuild
         uses: microsoft/setup-msbuild@v1.0.2
@@ -118,10 +118,10 @@ jobs:
       - name: CMake plugin
         run: ${{github.workspace}}/ci/windows/prepare-windows.cmd
         env:
-          build_config: $BUILD_CONFIG
-          QTDIR64: $QTDIR64
-          QTDIR32: $QTDIR32
-          OBSPath: OBS_PATH
+          build_config: ${{env.BUILD_CONFIG}}
+          QTDIR64: ${{env.QTDIR64}}
+          QTDIR32: ${{env.QTDIR32}}
+          OBSPath: ${{env.OBS_PATH}}
       
       - name: Build plugin (64bit)
         run: msbuild /m /p:Configuration=${{env.BUILD_CONFIG}} ${{github.workspace}}\build64\obs-studio.sln
