@@ -20,6 +20,7 @@ jobs:
   build-ubuntu:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+    if: ${{false}}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -79,7 +80,7 @@ jobs:
 
       # Runs a single command using the runners shell
       - name: Install Qt
-        run: $GITHUB_WORKSPACE/ci/windows/install-qt-win.cmd
+        run: ${{github.workspace}}/ci/windows/install-qt-win.cmd
       
       - name: Restore cached dependencies
         uses: actions/cache@v2.1.6
@@ -88,7 +89,7 @@ jobs:
           key: 'obsdeps'
           
       - name: Download obs studio dependencies
-        run: $GITHUB_WORKSPACE/ci/windows/download_obs_deps.cmd
+        run: ${{github.workspace}}/ci/windows/download_obs_deps.cmd
         
       - name: Restore cached OBS build
         uses: actions/cache@v2.1.6
@@ -97,7 +98,7 @@ jobs:
           key: 'obs'
       
       - name: Prepare windows
-        run: $GITHUB_WORKSPACE/ci/windows/prepare-obs-windows.cmd
+        run: ${{github.workspace}}/ci/windows/prepare-obs-windows.cmd
         env:
           build_config: $BUILD_CONFIG
           DepsPath32: $DEPS_PATH_32
@@ -110,7 +111,7 @@ jobs:
         uses: microsoft/setup-msbuild@v1.0.2
         
       - name: Build OBS studio 64bits
-        run: msbuild /m /p:Configuration=$BUILD_CONFIG $OBS_PATH\build64\obs-studio.sln
+        run: msbuild /m /p:Configuration=${{env.BUILD_CONFIG}} ${{env.OBS_PATH}}\build64\obs-studio.sln
       
       - name: CMake plugin
         run: ${{github.workspace}}/ci/windows/prepare-windows.cmd
@@ -121,10 +122,10 @@ jobs:
           OBSPath: OBS_PATH
       
       - name: Build plugin (64bit)
-        run: msbuild /m /p:Configuration=$BUILD_CONFIG ${{github.workspace}}\build64\obs-studio.sln
+        run: msbuild /m /p:Configuration=${{env.BUILD_CONFIG}} ${{github.workspace}}\build64\obs-studio.sln
       
       - name: Package build
-        run: $GITHUB_WORKSPACE/ci/windows/package-windows.cmd
+        run: ${{github.workspace}}/ci/windows/package-windows.cmd
       
       - name: Export installer
         uses: actions/upload-artifact@v2.2.3
