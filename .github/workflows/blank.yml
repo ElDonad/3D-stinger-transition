@@ -113,6 +113,7 @@ jobs:
         run: msbuild /m /p:Configuration=${{BUILD_CONFIG}} ${{OBS_PATH}}\build64\obs-studio.sln
       
       - name: CMake plugin
+        run: ${{github.workspace}}/ci/windows/prepare-windows.cmd
         env:
           build_config: $BUILD_CONFIG
           QTDIR64: $QTDIR64
