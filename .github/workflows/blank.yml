@@ -48,7 +48,7 @@ jobs:
         if: github.event_name == 'release'
         uses: svenstaro/upload-release-action@v2
         with:
-          file: $GITHUB_WORKSPACE/transition.blend
+          file: ${{github.workspace}}/transition.blend
           repo_token: ${{secrets.GITHUB_TOKEN}}
           tag: ${{github.ref}}
 
