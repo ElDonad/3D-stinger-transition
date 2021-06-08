@@ -55,6 +55,9 @@ jobs:
       - name : Publish binary file
         if: github.event_name == 'release'
         uses: Roang-zero1/github-upload-release-artifacts-action@v2.1.0
+        with:
+          args:
+          - ./package
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
