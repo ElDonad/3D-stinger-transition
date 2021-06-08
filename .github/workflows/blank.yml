@@ -94,6 +94,7 @@ jobs:
         run: ${{github.workspace}}/ci/windows/download-obs-deps.cmd
         env:
           OBSPath: ${{env.OBS_PATH}}
+          DepsBasePath: ${{env.DEPS_BASE_PATH}}
           
       - name: Restore cached OBS build
         uses: actions/cache@v2.1.6
