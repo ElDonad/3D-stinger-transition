@@ -81,6 +81,8 @@ jobs:
       # Runs a single command using the runners shell
       - name: Install Qt
         run: ${{github.workspace}}/ci/windows/install-qt-win.cmd
+        env:
+          QtBaseDir: $QT_BASE_DIR
       
       - name: Restore cached dependencies
         uses: actions/cache@v2.1.6
