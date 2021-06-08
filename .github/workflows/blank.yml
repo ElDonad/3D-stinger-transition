@@ -36,3 +36,9 @@ jobs:
         
       - name : Package
         run: $GITHUB_WORKSPACE/ci/linux/package-ubuntu.sh
+        
+      - name : Publish artifact
+        uses: action/upload-artifact@v2.2.3
+        with: 
+          path: ./package
+          name: Built package
