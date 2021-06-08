@@ -110,7 +110,7 @@ jobs:
         uses: microsoft/setup-msbuild@v1.0.2
         
       - name: Build OBS studio 64bits
-        run: msbuild /m /p:Configuration=${{BUILD_CONFIG}} ${{OBS_PATH}}\build64\obs-studio.sln
+        run: msbuild /m /p:Configuration=$BUILD_CONFIG $OBS_PATH\build64\obs-studio.sln
       
       - name: CMake plugin
         run: ${{github.workspace}}/ci/windows/prepare-windows.cmd
@@ -121,7 +121,7 @@ jobs:
           OBSPath: OBS_PATH
       
       - name: Build plugin (64bit)
-        run: msbuild /m /p:Configuration=${{BUILD_CONFIG}} ${{github.workspace}}\build64\obs-studio.sln
+        run: msbuild /m /p:Configuration=$BUILD_CONFIG ${{github.workspace}}\build64\obs-studio.sln
       
       - name: Package build
         run: $GITHUB_WORKSPACE/ci/windows/package-windows.cmd
