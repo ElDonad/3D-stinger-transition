@@ -91,7 +91,7 @@ jobs:
           key: 'obsdeps'
           
       - name: Download obs studio dependencies
-        run: ${{github.workspace}}/ci/windows/download_obs_deps.cmd
+        run: ${{github.workspace}}/ci/windows/download-obs-deps.cmd
         
       - name: Restore cached OBS build
         uses: actions/cache@v2.1.6
