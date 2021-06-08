@@ -65,11 +65,11 @@ jobs:
     env:
       BUILD_CONFIG: RelWithDebInfo
       DEPS_BASE_PATH: D:\obsdependencies
-      DEPS_BASE_PATH_32: ${{env.DEPS_BASE_PATH}}\win32
-      DEPS_BASE_PATH_64: ${{env.DEPS_BASE_PATH}}\win64
+      DEPS_BASE_PATH_32: D:\obsdependencies\win32
+      DEPS_BASE_PATH_64: D:\obsdependencies\win64
       QT_BASE_DIR: D:\QtDep
-      QTDIR32: ${{env.QT_BASE_DIR}}\5.10.1\msvc2017
-      QTDIR64: ${{env.QT_BASE_DIR}}\5.10.1\msvc2017_64
+      QTDIR32: D:\QtDep\5.10.1\msvc2017
+      QTDIR64: D:\QtDep\5.10.1\msvc2017_64
       OBS_PATH: D:\obs_studio
 
     steps:
