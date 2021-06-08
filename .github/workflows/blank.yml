@@ -28,11 +28,11 @@ jobs:
 
       # Runs a single command using the runners shell
       - name: Install dependencies
-        run: $GITHUB_WORKSPACE/ci/install-dependencies.sh
+        run: $GITHUB_WORKSPACE/ci/linux/install-dependencies.sh
 
       # Runs a set of commands using the runners shell
       - name: Build
-        run: $GITHUB_WORKSPACE/ci/build-ubuntu.sh
+        run: $GITHUB_WORKSPACE/ci/linux/build-ubuntu.sh
         
       - name : Package
-        run: $GITHUB_WORKSPACE/ci/package-ubuntu.sh
+        run: $GITHUB_WORKSPACE/ci/linux/package-ubuntu.sh
