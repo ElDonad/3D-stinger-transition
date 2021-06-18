@@ -174,7 +174,7 @@ if(UNIX AND NOT APPLE)
 	target_link_libraries(${CMAKE_PROJECT_NAME} obs-frontend-api)
 
 	file(GLOB locale_files data/locale/*.ini)
-	file(GLOB data_files data/*)
+	file(GLOB data_files LIST_DIRECTORIES false data/*)
 
 	install(TARGETS ${CMAKE_PROJECT_NAME}
 		LIBRARY DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}/obs-plugins")
