@@ -1,61 +1,29 @@
-# OBS Plugin Template
+*A little experimental plugin aimed at generating 3D transitions. Currently only one transition is available and working, although the plugin is a bit quirky, it will definitively be improved in the future ! (also this is my first OBS related project, so lot of stuff to learn and overcome...)*
 
-## Introduction
 
-This plugin is meant to make it easy to quickstart development of new OBS plugins. It includes:
+**How to use :**
 
-- The CMake project file
-- Boilerplate plugin source code
-- A continuous-integration configuration for automated builds (a.k.a Build Bot)
+* Install the plugin from the github release page
+* Create your own transition video using the provided blender file (you will need to create a video with transparency. The common method is to use ffmpeg with the command [CODE]ffmpeg -i %04d.png out.webm[/CODE], although for perfomance reasons I prefer to use the .mov format along with the qtrle encoder, you might want to experiment on that)
+* Create the transition in obs :
+    * adjust the transition time (3240 ms for the currently provided transition)
+    * Set the video file path in the transition's properties
+    * Tune the delay between the video and the transition in the transition's properties
 
-## Configuring
 
-Open `CMakeLists.txt` and edit the following lines at the beginning:
+**Current quirks :** 
 
-```cmake
-# Change `obs-plugintemplate` to your plugin's name in a machine-readable format
-# (e.g.: obs-myawesomeplugin) and set the value next to `VERSION` as your plugin's current version
-project(obs-plugintemplate VERSION 1.0.0)
+* The transition isn't able to set its own duration. The current transition lasts exactly 3240ms, you will need to set the transition duration to just that.
+* On some less powerful devices, the video and the scene transition might get a bit out of sync. This can be tuned in the parameters of the source, with a default value meaning that the transition will start 20ms after the video begins. You might want to tune that to your liking.
 
-# Replace `Your Name Here` with the name (yours or your organization's) you want
-# to see as the author of the plugin (in the plugin's metadata itself and in the installers)
-set(PLUGIN_AUTHOR "Your Name Here")
+**TODO :**
 
-# Replace `com.example.obs-plugin-template` with a unique Bundle ID for macOS releases
-# (used both in the installer and when submitting the installer for notarization)
-set(MACOS_BUNDLEID "com.example.obs-plugintemplate")
+* Add more translations
+* Allow automatic setup of the transition duration
+* Generalization to any user defined transform : My current thoughts on that is that I will need to create a small blender addon which will be able to extract the transformation of an object and output it in an exploitable file from the OBS plugin's side. But I've not given many thought yet ; I'm welcome on suggestions !
+* Add the ability to display simultaneously the two sources
+* Refactor the effect files, which are currently terrible
+* Allow the user to set its own effect files
 
-# Replace `me@contoso.com` with the maintainer email address you want to put in Linux packages
-set(LINUX_MAINTAINER_EMAIL "me@contoso.com")
-```
-
-## CI / Build Bot
-
-The CI scripts are made for Azure Pipelines. The sections below detail some of the common tasks possible with that CI configuration.
-
-### Retrieving build artifacts
-
-Each build produces installers and packages that you can use for testing and releases. These artifacts can be found a Build's page on Azure Pipelines.
-
-#### Building a Release
-
-Simply create and push a tag, and Azure Pipelines will run the pipeline in Release Mode. This mode uses the tag as its version number instead of the git ref in normal mode.
-
-### Signing and Notarizing on macOS
-
-On macOS, Release Mode builds will be signed and sent to Apple for notarization if `macosSignAndNotarize` is set to `True` at the top of the `azure-pipelines.yml` file. **You'll need a paid Apple Developer Account for this.**
-
-In addition to enabling `macosSignAndNotarize`, you'll need to setup a few more things for Signing and Notarizing to work:
-
-- On your Apple Developer dashboard, go to "Certificates, IDs & Profiles" and create two signing certificates:
-    - One of the "Developer ID Application" type. It will be used to sign the plugin's binaries
-    - One of the "Developer ID Installer" type. It will be used to sign the plugin's installer
-- Using the Keychain app on macOS, export these two certificates and keys into a .p12 file **protected with a strong password**
-- Add that `Certificates.P12` file as a [Secure File in Azure Pipelines](https://docs.microsoft.com/en-us/azure/devops/pipelines/library/secure-files?view=azure-devops) and make sure it is named `Certificates.p12`
-- Add the following secrets in your pipeline settings:
-    - `secrets.macOS.certificatesImportPassword`: Password of the .p12 file generated earlier
-    - `secrets.macOS.codeSigningIdentity`: Name of the "Developer ID Application" signing certificate generated earlier
-    - `secrets.macOS.installerSigningIdentity`: Name of "Developer ID Installer" signing certificate generated earlier
-    - `secrets.macOS.notarization.username`: Your Apple Developer Account's username
-    - `secrets.macOS.notarization.password`: Your Apple Developer Account's password
-    - `secrets.macOS.notarization.providerShortName`: Identifier (`Provider Short Name`, as Apple calls it) of the Developer Team to which the signing certificates belong. 
+**DEMO :**
+https://youtu.be/ylafBweCZFQ
