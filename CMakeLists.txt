@@ -26,6 +26,8 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(LIBOBS_RUNTIME_CONFIG $<CONFIG> CACHE STRING "name of the OBS build dir")
+
 if (WIN32 OR APPLE)
 include(external/FindLibObs.cmake)
 endif()
@@ -92,10 +94,10 @@ if(WIN32)
 
 	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 		set(ARCH_NAME "64bit")
-		set(OBS_BUILDDIR_ARCH "build64")
+		set(OBS_BUILDDIR_ARCH "cmake-build-debug")
 	else()
 		set(ARCH_NAME "32bit")
-		set(OBS_BUILDDIR_ARCH "build32")
+		set(OBS_BUILDDIR_ARCH "cmake-build-debug")
 	endif()
 
 	include_directories(
@@ -143,11 +145,12 @@ if(WIN32)
                 "$<TARGET_FILE:${CMAKE_PROJECT_NAME}>"
                 "${LIBOBS_INCLUDE_DIR}/../${OBS_BUILDDIR_ARCH}/rundir/$<CONFIG>/obs-plugins/${ARCH_NAME}"
         )
+        COMMENT if $<CONFIG:Debug>==1 "${LIBOBS_INCLUDE_DIR}/../${OBS_BUILDDIR_ARCH}/rundir/${LIBOBS_RELEASE_CONFIG}/obs-plugins/${ARCH_NAME}"
 
         COMMAND if $<CONFIG:Debug>==1 (
             "${CMAKE_COMMAND}" -E copy
                 "$<TARGET_PDB_FILE:${CMAKE_PROJECT_NAME}>"
-                "${LIBOBS_INCLUDE_DIR}/../${OBS_BUILDDIR_ARCH}/rundir/$<CONFIG>/obs-plugins/${ARCH_NAME}"
+                "${LIBOBS_INCLUDE_DIR}/../${OBS_BUILDDIR_ARCH}/rundir/${LIBOBS_RELEASE_CONFIG}/obs-plugins/${ARCH_NAME}"
         )
 
         COMMAND if $<CONFIG:Debug>==1 (
