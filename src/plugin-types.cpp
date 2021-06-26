@@ -15,9 +15,10 @@ namespace Stinger3D {
         switch (type) {
             case LINEAR:
                 return t2 + start;
-            case SINUSOIDAL:
+            case SINUSOIDAL: {
                 val = -(amplitude - start) * (cos(M_PI * (input - offset)) - 1.0) / 2.0 + start;
                 return val;
+            }
             case QUADRATIC:
                 return t2 < 0.5 ? 2.0 * t2 * t2 : 1.0 - powf(-2.0 * t2 + 2.0, 2.0) / 2.0;
             case CONSTANT:

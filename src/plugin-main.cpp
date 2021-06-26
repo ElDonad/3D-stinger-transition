@@ -92,19 +92,21 @@ void stinger_3D_transition::transition_callback(gs_texture_t *a, gs_texture_t *b
     // processing of the transforms
     for (auto transform : transition.transforms) {
         switch (transform.transformation) {
-            case Stinger3D::TRANSLATION:
+            case Stinger3D::TRANSLATION: {
                 auto machin = std::get<vec3>(transform.getFrame(t));
                 gs_matrix_translate(&machin);
                 break;
+            }
             case Stinger3D::ROTATION: {
                 auto qu = std::get<quat>(transform.getFrame(t));
                 gs_matrix_rotaa4f(qu.x, qu.y, qu.z, qu.w);
                 break;
             }
-            case Stinger3D::SCALE:
+            case Stinger3D::SCALE: {
                 auto val = std::get<vec3>(transform.getFrame(t));
                 gs_matrix_scale(&val);
                 break;
+            }
         }
     }
 
