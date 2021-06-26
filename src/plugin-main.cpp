@@ -43,7 +43,7 @@ private:
     gs_eparam_t *bparam;
     gs_eparam_t *tparam;
 
-    std::vector<Transformation> transitions;
+    Transition transition;
 
     void render(gs_effect_t *effect);
 
@@ -63,7 +63,8 @@ private:
     static void getDefaults(obs_data_t *);
 
     float delay;
-    char *filePath;
+
+    std::string videoPath;
 };
 
 obs_source_info SOURCE_2;
@@ -87,25 +88,33 @@ void stinger_3D_transition::transition_callback(gs_texture_t *a, gs_texture_t *b
     gs_perspective(90, 1280.0 / 720.0, 1.0f / 2097152.0f, 2097152.0f);
     gs_matrix_push();
     gs_matrix_scale3f(1.0 * 1280.0 / 720.0, 1.0, 1.0);
-    if (t < 0.25) {
-        gs_matrix_translate3f(0, 0, -ease(t) * DISTANCE);
-    }
-    if (t >= 0.75) {
-        gs_matrix_translate3f(0, 0, -DISTANCE + DISTANCE * ease(t, 0.75f));
+
+    // processing of the transforms
+    for (auto transform : transition.transforms) {
+        switch (transform.transformation) {
+            case Stinger3D::TRANSLATION:
+                auto machin = std::get<vec3>(transform.getFrame(t));
+                gs_matrix_translate(&machin);
+                break;
+            case Stinger3D::ROTATION: {
+                auto qu = std::get<quat>(transform.getFrame(t));
+                gs_matrix_rotaa4f(qu.x, qu.y, qu.z, qu.w);
+                break;
+            }
+            case Stinger3D::SCALE:
+                auto val = std::get<vec3>(transform.getFrame(t));
+                gs_matrix_scale(&val);
+                break;
+        }
     }
 
-    if (t >= 0.25 && t < 0.75) {
-        gs_matrix_translate3f(0, 0, -DISTANCE);
-        gs_matrix_translate3f(0, 0, -1);
-        gs_matrix_rotaa4f(0, 1, 0, (ease(t, 0.25, 2) * 2 * M_PI));
-        gs_matrix_translate3f(0, 0, 1);
-    }
+    //center image, camera at one unit of distance from the center
     gs_matrix_translate3f(-1, -1, -1.0);
 
     const bool previous = gs_framebuffer_srgb_enabled();
     gs_enable_framebuffer_srgb(true);
 
-    gs_effect_set_texture(aparam, t < 0.5 ? a : b);
+    gs_effect_set_texture(aparam, t < transition.swap_time ? a : b);
     gs_effect_set_texture(bparam, b);
     gs_effect_set_float(tparam, t);
 
@@ -134,26 +143,38 @@ void stinger_3D_transition::update(obs_data_t *settings) {
 
     //descriptor parsing
     std::string descriptor_string(obs_data_get_string(settings, "descriptor"));
-    json::json descriptor_json = descriptor_string;
-    auto debug_json = descriptor_json.dump(4);
-    blog(LOG_INFO, "json : %s", debug_json.c_str());
-    this->transitions = descriptor_json.get<std::vector<Transformation>>();
+    try {
+        json::json descriptor_json = json::json::parse(descriptor_string);
+        auto debug_json = descriptor_json.dump(4);
+        blog(LOG_INFO, "json : %s", debug_json.c_str());
+        transition = descriptor_json.get<Transition>();
+    }
+
+    catch (json::basic_json<>::exception err) {
+        blog(LOG_ERROR, "Could not parse json parameters : %s", err.what());
+    }
+
 
     delay = (float) obs_data_get_int(settings, "delay") / 1000.0;
     //Media initialization
-    obs_source_release(media_source);
-    obs_data_t *media_settings = obs_data_create();
-    auto pathStr = obs_data_get_string(settings, "Video file");
-    dstr path;
-    dstr_init_copy(&path, pathStr);
-    filePath = path.array;
 
-    obs_data_set_string(media_settings, "local_file", filePath);
-    obs_data_set_bool(media_settings, "hw_decode", false);
+    auto newPath = std::string(obs_data_get_string(settings, "Video file"));
 
-    media_source = obs_source_create_private("ffmpeg_source", "transition video", media_settings);
+    if (newPath != videoPath) {
+        blog(LOG_INFO, "Refreshing the source...");
+        obs_source_release(media_source);
+        obs_data_t *media_settings = obs_data_create();
+        obs_data_set_string(media_settings, "local_file", newPath.c_str());
+        obs_data_set_bool(media_settings, "hw_decode", false);
 
-    obs_data_release(media_settings);
+        media_source = obs_source_create_private("ffmpeg_source", "transition video", media_settings);
+
+        obs_data_release(media_settings);
+
+        videoPath = newPath;
+    }
+
+
 }
 
 void stinger_3D_transition::registerInputSource() {
@@ -248,7 +269,7 @@ obs_properties_t *stinger_3D_transition::getProperties() {
 void stinger_3D_transition::getDefaults(obs_data_t *data) {
     obs_data_set_default_int(data, "delay", 20);
     obs_data_set_default_string(data, "descriptor",
-                                "[{\n\tbegin_frame: 0,\n\tend_frame: 0,\n\teasing: \"\",\n\ttransformation: \"\",\n\tparams: {\n\t\tx: ,\n\t\ty: ,\n\t\tz: ,\n\t}\n }]");
+                                "{\n\t\"swap_time\": 0.5, \n\t\"transforms\": [\n\t{\n\t\t\"begin_frame\": 0,\n\t\t\"end_frame\": 0,\n\t\t\"easing\": \"\",\n\t\t\"transformation\": \"\",\n\t\t\"params\": {\n\t\t\t\"x\": ,\n\t\t\t\"y\": ,\n\t\t\t\"z\": \n\t\t}\n\t }]\n}");
 }
 
 OBS_DECLARE_MODULE()

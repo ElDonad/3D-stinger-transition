@@ -6,7 +6,10 @@
 #define OBS_3DSTINGERTRANSITION_PLUGIN_TYPES_H
 
 #include <graphics/vec3.h>
+#include <graphics/quat.h>
 #include "json.hpp"
+
+#include <variant>
 
 namespace json = nlohmann;
 
@@ -23,11 +26,11 @@ namespace Stinger3D {
     NLOHMANN_JSON_SERIALIZE_ENUM(EaseType, {
         { LINEAR, "linear" },
         { QUADRATIC, "quadratic" },
-        { SINUSOIDAL, "sinuoidal" },
+        { SINUSOIDAL, "sinusoidal" },
         { CONSTANT, "constant" }
     })
 
-    float ease(float input, EaseType type, float amplitude = 1, float offset = 0);
+    float ease(float input, EaseType type, float amplitude = 1, float offset = 0, float start = 0);
 
     enum TransformationType {
         SCALE,
@@ -48,9 +51,9 @@ namespace Stinger3D {
 
         EaseType easing;
         TransformationType transformation;
-        vec3 parameters;
+        std::variant<vec3, quat> parameters;
 
-        virtual vec3 getFrame(float frame);
+        virtual std::variant<vec3, quat> getFrame(float frame);
 
     };
 
@@ -59,10 +62,24 @@ namespace Stinger3D {
 
     void from_json(const json::json &j, Transformation &transform);
 
+    class Transition {
+    public:
+        std::vector<Transformation> transforms;
+        float swap_time;
+    };
+
+    void to_json(json::json &j, const Transition &);
+
+    void from_json(const json::json &j, Transition &);
+
 }
 
 void to_json(json::json &j, const vec3 &transform);
 
 void from_json(const json::json &j, vec3 &transform);
+
+void to_json(json::json &j, const quat &transform);
+
+void from_json(const json::json &j, quat &transform);
 
 #endif //OBS_3DSTINGERTRANSITION_PLUGIN_TYPES_H

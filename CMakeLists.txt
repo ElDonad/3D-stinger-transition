@@ -23,7 +23,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
 # In case you need C++
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(LIBOBS_RUNTIME_CONFIG $<CONFIG> CACHE STRING "name of the OBS build dir")
@@ -58,9 +58,11 @@ configure_file(
 )
 
 set(PLUGIN_SOURCES
+		src/plugin-types.cpp
 		src/plugin-main.cpp)
 
 set(PLUGIN_HEADERS
+	src/plugin-types.h
 	src/plugin-macros.generated.h)
 
 # --- Platform-independent build settings ---
