@@ -22,6 +22,7 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 #include "plugin-macros.generated.h"
 
 #include <random>
+#include <fstream>
 #include <graphics/image-file.h>
 #include <util/dstr.h>
 
@@ -89,29 +90,10 @@ void stinger_3D_transition::transition_callback(gs_texture_t *a, gs_texture_t *b
     gs_matrix_push();
     gs_matrix_scale3f(1.0 * 1280.0 / 720.0, 1.0, 1.0);
 
-    // processing of the transforms
-    for (auto transform : transition.transforms) {
-        switch (transform.transformation) {
-            case Stinger3D::TRANSLATION: {
-                auto machin = std::get<vec3>(transform.getFrame(t));
-                gs_matrix_translate(&machin);
-                break;
-            }
-            case Stinger3D::ROTATION: {
-                auto qu = std::get<quat>(transform.getFrame(t));
-                gs_matrix_rotaa4f(qu.x, qu.y, qu.z, qu.w);
-                break;
-            }
-            case Stinger3D::SCALE: {
-                auto val = std::get<vec3>(transform.getFrame(t));
-                gs_matrix_scale(&val);
-                break;
-            }
-        }
-    }
+    transition.transforms->render_frame(t);
 
     //center image, camera at one unit of distance from the center
-    gs_matrix_translate3f(-1, -1, -1.0);
+    //gs_matrix_translate3f(-1, -1, -1.0);
 
     const bool previous = gs_framebuffer_srgb_enabled();
     gs_enable_framebuffer_srgb(true);
@@ -135,7 +117,7 @@ void stinger_3D_transition::render(gs_effect_t *effect) {
         static_cast<stinger_3D_transition *>(data)->transition_callback(a, b, t, cx, cy);
     });
     gs_matrix_push();
-    gs_matrix_scale3f(1.0f, 1.0f, 1.0f);
+    //gs_matrix_scale3f(1.0f, 1.0f, 1.0f);
     obs_source_video_render(media_source);
     gs_matrix_pop();
 }
@@ -144,11 +126,14 @@ void stinger_3D_transition::update(obs_data_t *settings) {
     blog(LOG_INFO, "update transition");
 
     //descriptor parsing
-    std::string descriptor_string(obs_data_get_string(settings, "descriptor"));
+    std::string descriptor_filename(obs_data_get_string(settings, "descriptor"));
+    std::fstream file;
+    file.open(descriptor_filename, std::fstream::in);
+
+    std::string descriptor_string(std::istreambuf_iterator<char>{file}, {});
+
     try {
         json::json descriptor_json = json::json::parse(descriptor_string);
-        auto debug_json = descriptor_json.dump(4);
-        blog(LOG_INFO, "json : %s", debug_json.c_str());
         transition = descriptor_json.get<Transition>();
     }
 
@@ -264,14 +249,13 @@ obs_properties_t *stinger_3D_transition::getProperties() {
     auto properties = obs_properties_create();
     obs_properties_add_int(properties, "delay", "Delay between audio and animation (ms)", 0, 1000, 1);
     obs_properties_add_path(properties, "Video file", "Path to the video", OBS_PATH_FILE, NULL, NULL);
-    obs_properties_add_text(properties, "descriptor", "JSON transform description", OBS_TEXT_MULTILINE);
+    obs_properties_add_path(properties, "descriptor", "JSON transform description", OBS_PATH_FILE, NULL, NULL);
+
     return properties;
 }
 
 void stinger_3D_transition::getDefaults(obs_data_t *data) {
     obs_data_set_default_int(data, "delay", 20);
-    obs_data_set_default_string(data, "descriptor",
-                                "{\n\t\"swap_time\": 0.5, \n\t\"transforms\": [\n\t{\n\t\t\"begin_frame\": 0,\n\t\t\"end_frame\": 0,\n\t\t\"easing\": \"\",\n\t\t\"transformation\": \"\",\n\t\t\"params\": {\n\t\t\t\"x\": ,\n\t\t\t\"y\": ,\n\t\t\t\"z\": \n\t\t}\n\t }]\n}");
 }
 
 OBS_DECLARE_MODULE()

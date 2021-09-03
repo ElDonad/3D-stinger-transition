@@ -5,8 +5,12 @@
 #include "plugin-types.h"
 
 #include <iostream>
+#include <obs-module.h>
+#include <graphics/axisang.h>
 
 namespace Stinger3D {
+
+    const vec3 camera_position = vec3{-1, -1, -1};
 
     float ease(float input, EaseType type, float amplitude, float offset, float start) {
         float t2 = (input - offset) * (amplitude - start);
@@ -60,6 +64,100 @@ namespace Stinger3D {
         }
     }
 
+    void to_json(json::json &j, const Frame &frame) {
+        j["position"] = frame.position;
+        j["rotation"] = frame.rotation;
+        j["scale"] = frame.scale;
+    }
+
+    void from_json(const json::json &j, Frame &frame) {
+        j.at("position").get_to(frame.position);
+        j.at("rotation").get_to(frame.rotation);
+        j.at("scale").get_to(frame.scale);
+    }
+
+    void to_json(json::json &j, const TransformData &data) {
+        j["transforms"] = data.transforms;
+    }
+
+    void from_json(const json::json &j, TransformData &data) {
+        j.at("transforms").get_to(data.transforms);
+    }
+
+    void to_json(json::json &j, const InterpolationData &data) {
+        j["frames"] = data.raw_frames;
+        j["resolution"] = data.resolution;
+    }
+
+    void from_json(const json::json &j, InterpolationData &data) {
+        j.at("resolution").get_to(data.resolution);
+        j.at("frames").get_to(data.raw_frames);
+    }
+
+    float interpolate(float lower, float upper, float offset) {
+        return lower + (upper - lower) * offset;
+    };
+
+    void InterpolationData::render_frame(float time) {
+        int lowerFramei = floor(raw_frames.size() * time);
+        int upperFramei = ceil(raw_frames.size() * time);
+        float currentFramei = ((float) raw_frames.size()) * time;
+        float coi = currentFramei - (float) lowerFramei;
+
+        auto &lf = raw_frames[lowerFramei];
+        auto &uf = raw_frames[upperFramei];
+        auto pos = vec3{
+                interpolate(lf.position.x, uf.position.x, coi),
+                interpolate(lf.position.y, uf.position.y, coi),
+                interpolate(lf.position.z, uf.position.z, coi)
+        };
+        auto rot = quat{
+                interpolate(lf.rotation.x, uf.rotation.x, coi),
+                interpolate(lf.rotation.y, uf.rotation.y, coi),
+                interpolate(lf.rotation.z, uf.rotation.z, coi),
+                interpolate(lf.rotation.w, uf.rotation.w, coi),
+        };
+
+        auto scale = vec3{
+                interpolate(lf.scale.x, uf.scale.x, coi),
+                interpolate(lf.scale.y, uf.scale.y, coi),
+                interpolate(lf.scale.z, uf.scale.z, coi)
+        };
+
+        gs_matrix_translate(&camera_position);
+        gs_matrix_translate(&pos);
+
+        gs_matrix_translate3f(1, 1, 0);
+        gs_matrix_rotquat(&rot);
+        gs_matrix_translate3f(-1, -1, 0);
+
+
+        gs_matrix_scale(&scale);
+
+    }
+
+    void TransformData::render_frame(float time) {
+        for (auto transform: transforms) {
+            switch (transform.transformation) {
+                case Stinger3D::TRANSLATION: {
+                    auto machin = std::get<vec3>(transform.getFrame(time));
+                    gs_matrix_translate(&machin);
+                    break;
+                }
+                case Stinger3D::ROTATION: {
+                    auto qu = std::get<quat>(transform.getFrame(time));
+                    gs_matrix_rotaa4f(qu.x, qu.y, qu.z, qu.w);
+                    break;
+                }
+                case Stinger3D::SCALE: {
+                    auto val = std::get<vec3>(transform.getFrame(time));
+                    gs_matrix_scale(&val);
+                    break;
+                }
+            }
+        }
+    }
+
     void to_json(json::json &j, const Transformation &transform) {
         j["begin_frame"] = transform.begin_frame;
         j["end_frame"] = transform.end_frame;
@@ -86,12 +184,30 @@ namespace Stinger3D {
 
     void to_json(json::json &j, const Transition &transition) {
         j["swap_time"] = transition.swap_time;
-        j["transforms"] = transition.transforms;
+        j["data_type"] = transition.data_type;
+        switch (transition.data_type) {
+            case TRANSFORM:
+                j["data"] = *static_cast<TransformData *>(transition.transforms.get());
+            case INTERPOLATION:
+                j["data"] = *static_cast<InterpolationData *>(transition.transforms.get());
+        }
     }
 
     void from_json(const json::json &j, Transition &transition) {
         j.at("swap_time").get_to(transition.swap_time);
-        j.at("transforms").get_to(transition.transforms);
+
+        j.at("data_type").get_to(transition.data_type);
+        switch (transition.data_type) {
+            case INTERPOLATION:
+                transition.transforms = std::make_unique<InterpolationData>(
+                        std::move(j.at("data").get<InterpolationData>()));
+                break;
+            case TRANSFORM:
+                transition.transforms = std::make_unique<TransformData>(
+                        std::move(j.at("data").get<TransformData>()));
+                break;
+
+        }
     }
 
 }

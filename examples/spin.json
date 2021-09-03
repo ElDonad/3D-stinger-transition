@@ -1,73 +1,76 @@
 {
 	"swap_time": 0.5,
-	"transforms": [
-		{
-			"begin_frame": 0,
-			"end_frame": 0.25,
-			"easing": "sinusoidal",
-			"transformation": "translation",
-			"params": {
-				"x": 0,
-				"y": 0,
-				"z": -1
+	"data_type": "transform",
+	"data": {
+		"transforms": [
+			{
+				"begin_frame": 0,
+				"end_frame": 0.25,
+				"easing": "sinusoidal",
+				"transformation": "translation",
+				"params": {
+					"x": 0,
+					"y": 0,
+					"z": -1
+				}
+			},
+			{
+				"begin_frame": 0.25,
+				"end_frame": 1,
+				"easing": "constant",
+				"transformation": "translation",
+				"params": {
+					"x": 0,
+					"y": 0,
+					"z": -1
+				}
+			},
+			{
+				"begin_frame": 0.75,
+				"end_frame": 1,
+				"easing": "sinusoidal",
+				"transformation": "translation",
+				"params":{
+					"x": 0,
+					"y": 0,
+					"z": 1
+				}
+			},
+			{
+				"begin_frame": 0.25,
+				"end_frame": 0.75,
+				"easing": "constant",
+				"transformation": "translation",
+				"params": {
+					"x": 0,
+					"y": 0,
+					"z": -1
+				}
+			},
+			{
+				"begin_frame": 0.25,
+				"end_frame": 0.75,
+				"easing": "sinusoidal",
+				"transformation": "rotation",
+				"params": {
+					"x": 0,
+					"y": 1,
+					"z": 0,
+					"w": 6.2831
+				}
+			},
+			{
+				"begin_frame": 0.25,
+				"end_frame": 0.75,
+				"easing": "constant",
+				"transformation": "translation",
+				"params": {
+					"x": 0,
+					"y": 0,
+					"z": 1
+				}
 			}
-		},
-		{
-			"begin_frame": 0.25,
-			"end_frame": 1,
-			"easing": "constant",
-			"transformation": "translation",
-			"params": {
-				"x": 0,
-				"y": 0,
-				"z": -1
-			}
-		},
-		{
-			"begin_frame": 0.75,
-			"end_frame": 1,
-			"easing": "sinusoidal",
-			"transformation": "translation",
-			"params":{
-				"x": 0,
-				"y": 0,
-				"z": 1
-			}
-		},
-		{
-			"begin_frame": 0.25,
-			"end_frame": 0.75,
-			"easing": "constant",
-			"transformation": "translation",
-			"params": {
-				"x": 0,
-				"y": 0,
-				"z": -1
-			}
-		},
-		{
-			"begin_frame": 0.25,
-			"end_frame": 0.75,
-			"easing": "sinusoidal",
-			"transformation": "rotation",
-			"params": {
-				"x": 0,
-				"y": 1,
-				"z": 0,
-				"w": 6.2831
-			}
-		},
-		{
-			"begin_frame": 0.25,
-			"end_frame": 0.75,
-			"easing": "constant",
-			"transformation": "translation",
-			"params": {
-				"x": 0,
-				"y": 0,
-				"z": 1
-			}
-		}
-		
-	]
+			
+		]
+	}
 }

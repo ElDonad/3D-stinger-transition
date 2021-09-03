@@ -62,10 +62,80 @@ namespace Stinger3D {
 
     void from_json(const json::json &j, Transformation &transform);
 
-    class Transition {
+    class Frame {
+    public:
+        vec3 position;
+        quat rotation;
+        vec3 scale;
+    };
+
+    void to_json(json::json &j, const Frame &frame);
+
+    void from_json(const json::json &j, Frame &frame);
+
+    class DataHolder {
+    public:
+        virtual void render_frame(float time) = 0;
+    };
+
+    class TransformData;
+
+    class InterpolationData;
+
+    void to_json(json::json &j, const TransformData &data);
+
+    void from_json(const json::json &j, TransformData &data);
+
+    void to_json(json::json &j, const InterpolationData &data);
+
+    void from_json(const json::json &j, InterpolationData &data);
+
+    class TransformData : public DataHolder {
     public:
         std::vector<Transformation> transforms;
+
+        virtual void render_frame(float time) override;
+
+
+        friend void to_json(json::json &j, const TransformData &data);
+
+        friend void from_json(const json::json &j, TransformData &data);
+    };
+
+    class InterpolationData : public DataHolder {
+    public:
+        virtual void render_frame(float time) override;
+
+        friend void to_json(json::json &j, const InterpolationData &data);
+
+        friend void from_json(const json::json &j, InterpolationData &data);
+
+    protected:
+        std::vector<Frame> raw_frames;
+        float resolution;
+    };
+
+    enum DataType {
+        TRANSFORM,
+        INTERPOLATION,
+        INVALID
+    };
+
+    NLOHMANN_JSON_SERIALIZE_ENUM(DataType, {
+        { TRANSFORM, "transform" },
+        { INTERPOLATION, "interpolation" },
+        { INVALID, nullptr }
+    })
+
+    std::string toString(DataType &);
+
+    DataType toDataType(std::string &);
+
+    class Transition {
+    public:
+        std::unique_ptr<DataHolder> transforms;
         float swap_time;
+        DataType data_type;
     };
 
     void to_json(json::json &j, const Transition &);
