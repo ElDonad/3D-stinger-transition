@@ -25,6 +25,8 @@ with this program. If not, see <https://www.gnu.org/licenses/>
 #include <fstream>
 #include <graphics/image-file.h>
 #include <util/dstr.h>
+#include <cstdint>
+#include <chrono>
 
 #include "plugin-types.h"
 
@@ -43,6 +45,7 @@ private:
     gs_eparam_t *aparam;
     gs_eparam_t *bparam;
     gs_eparam_t *tparam;
+    std::chrono::milliseconds media_duration;
 
     Transition transition;
 
@@ -236,9 +239,15 @@ stinger_3D_transition::stinger_3D_transition(obs_data_t *settings, obs_source_t 
 void stinger_3D_transition::startTransition() {
     proc_handler_t *ph = obs_source_get_proc_handler(media_source);
     calldata_t cd = {0};
+    proc_handler_call(ph, "get_duration", &cd);
+    uint64_t duration_ms = calldata_int(&cd, "duration") / 1000000;
+    media_duration = std::chrono::milliseconds(duration_ms);
+    obs_transition_enable_fixed(source, true, media_duration.count());
+
     proc_handler_call(ph, "restart", &cd);
     blog(LOG_INFO, "Video started !");
     obs_source_add_active_child(source, media_source);
+    calldata_free(&cd);
 }
 
 void stinger_3D_transition::endTransition() {

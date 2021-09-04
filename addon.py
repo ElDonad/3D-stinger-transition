@@ -67,12 +67,17 @@ class OBJECT_OT_exporttransformobs(bpy.types.Operator):
         context.window_manager.fileselect_add(self)
         return {'RUNNING_MODAL'}
 
+def menu_func(self, context):
+    self.layout.operator(OBJECT_OT_exporttransformobs.bl_idname)
+    
 
 def register():
     bpy.utils.register_class(OBJECT_OT_exporttransformobs)
+    bpy.types.VIEW3D_MT_object.append(menu_func)
 
 def unregister():
     bpy.utils.unregister_class(OBJECT_OT_exporttransformobs)
-
+    bpy.types.VIEW3D_MT_object.remove(menu_func)
+    
 if __name__ == "__main__":
     register()
