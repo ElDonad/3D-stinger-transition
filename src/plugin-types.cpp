@@ -16,7 +16,6 @@ namespace Stinger3D
     float ease(float input, EaseType type, float amplitude, float offset, float start)
     {
         float t2 = (input - offset) * (amplitude - start);
-        float t2_inv = (1 - (input - offset)) * (amplitude - start);
         float val;
         switch (type)
         {
@@ -223,6 +222,8 @@ namespace Stinger3D
             j["data"] = *static_cast<TransformData *>(transition.transforms.get());
         case INTERPOLATION:
             j["data"] = *static_cast<InterpolationData *>(transition.transforms.get());
+        case INVALID:
+            break;
         }
     }
 
@@ -235,11 +236,13 @@ namespace Stinger3D
         {
         case INTERPOLATION:
             transition.transforms = std::make_unique<InterpolationData>(
-                std::move(j.at("data").get<InterpolationData>()));
+                j.at("data").get<InterpolationData>());
             break;
         case TRANSFORM:
             transition.transforms = std::make_unique<TransformData>(
-                std::move(j.at("data").get<TransformData>()));
+                j.at("data").get<TransformData>());
+            break;
+        case INVALID:
             break;
         }
     }

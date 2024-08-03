@@ -13,38 +13,37 @@
 
 namespace json = nlohmann;
 
+namespace Stinger3D
+{
 
-namespace Stinger3D {
-
-    enum EaseType {
+    enum EaseType
+    {
         LINEAR,
         QUADRATIC,
         SINUSOIDAL,
         CONSTANT
     };
 
-    NLOHMANN_JSON_SERIALIZE_ENUM(EaseType, {
-        { LINEAR, "linear" },
-        { QUADRATIC, "quadratic" },
-        { SINUSOIDAL, "sinusoidal" },
-        { CONSTANT, "constant" }
-    })
+    NLOHMANN_JSON_SERIALIZE_ENUM(EaseType, {{LINEAR, "linear"},
+                                            {QUADRATIC, "quadratic"},
+                                            {SINUSOIDAL, "sinusoidal"},
+                                            {CONSTANT, "constant"}})
 
     float ease(float input, EaseType type, float amplitude = 1, float offset = 0, float start = 0);
 
-    enum TransformationType {
+    enum TransformationType
+    {
         SCALE,
         ROTATION,
         TRANSLATION
     };
 
-    NLOHMANN_JSON_SERIALIZE_ENUM(TransformationType, {
-        { SCALE, "scale" },
-        { ROTATION, "rotation" },
-        { TRANSLATION, "translation" }
-    })
+    NLOHMANN_JSON_SERIALIZE_ENUM(TransformationType, {{SCALE, "scale"},
+                                                      {ROTATION, "rotation"},
+                                                      {TRANSLATION, "translation"}})
 
-    class Transformation {
+    class Transformation
+    {
     public:
         float begin_frame;
         float end_frame;
@@ -54,15 +53,14 @@ namespace Stinger3D {
         std::variant<vec3, quat> parameters;
 
         virtual std::variant<vec3, quat> getFrame(float frame);
-
     };
-
 
     void to_json(json::json &j, const Transformation &transform);
 
     void from_json(const json::json &j, Transformation &transform);
 
-    class Frame {
+    class Frame
+    {
     public:
         vec3 position;
         quat rotation;
@@ -73,9 +71,11 @@ namespace Stinger3D {
 
     void from_json(const json::json &j, Frame &frame);
 
-    class DataHolder {
+    class DataHolder
+    {
     public:
         virtual void render_frame(float time) = 0;
+        virtual ~DataHolder() = default;
     };
 
     class TransformData;
@@ -90,19 +90,20 @@ namespace Stinger3D {
 
     void from_json(const json::json &j, InterpolationData &data);
 
-    class TransformData : public DataHolder {
+    class TransformData : public DataHolder
+    {
     public:
         std::vector<Transformation> transforms;
 
         virtual void render_frame(float time) override;
-
 
         friend void to_json(json::json &j, const TransformData &data);
 
         friend void from_json(const json::json &j, TransformData &data);
     };
 
-    class InterpolationData : public DataHolder {
+    class InterpolationData : public DataHolder
+    {
     public:
         virtual void render_frame(float time) override;
 
@@ -115,23 +116,23 @@ namespace Stinger3D {
         float resolution;
     };
 
-    enum DataType {
+    enum DataType
+    {
         TRANSFORM,
         INTERPOLATION,
         INVALID
     };
 
-    NLOHMANN_JSON_SERIALIZE_ENUM(DataType, {
-        { TRANSFORM, "transform" },
-        { INTERPOLATION, "interpolation" },
-        { INVALID, nullptr }
-    })
+    NLOHMANN_JSON_SERIALIZE_ENUM(DataType, {{TRANSFORM, "transform"},
+                                            {INTERPOLATION, "interpolation"},
+                                            {INVALID, nullptr}})
 
     std::string toString(DataType &);
 
     DataType toDataType(std::string &);
 
-    class Transition {
+    class Transition
+    {
     public:
         std::unique_ptr<DataHolder> transforms;
         float swap_time;
@@ -152,4 +153,4 @@ void to_json(json::json &j, const quat &transform);
 
 void from_json(const json::json &j, quat &transform);
 
-#endif //OBS_3DSTINGERTRANSITION_PLUGIN_TYPES_H
+#endif // OBS_3DSTINGERTRANSITION_PLUGIN_TYPES_H

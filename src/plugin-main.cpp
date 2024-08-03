@@ -94,6 +94,8 @@ static double ease(float t, float offset = 0.0f, float amplitude = 4.0f)
 
 void stinger_3D_transition::transition_callback(gs_texture_t *a, gs_texture_t *b, float t, uint32_t cx, uint32_t cy)
 {
+    UNUSED_PARAMETER(cx);
+    UNUSED_PARAMETER(cy);
     if (t < delay)
     {
         t = 0;
@@ -129,6 +131,7 @@ void stinger_3D_transition::transition_callback(gs_texture_t *a, gs_texture_t *b
 
 void stinger_3D_transition::render(gs_effect_t *effect)
 {
+    UNUSED_PARAMETER(effect);
     obs_transition_video_render(this->source, [](void *data, gs_texture_t *a, gs_texture_t *b, float t, uint32_t cx,
                                                  uint32_t cy)
                                 { static_cast<stinger_3D_transition *>(data)->transition_callback(a, b, t, cx, cy); });
