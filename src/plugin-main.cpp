@@ -129,9 +129,9 @@ void stinger_3D_transition::transition_callback(gs_texture_t *a, gs_texture_t *b
     gs_projection_pop();
 }
 
-void stinger_3D_transition::render(gs_effect_t *effect)
+void stinger_3D_transition::render(gs_effect_t *_effect)
 {
-    UNUSED_PARAMETER(effect);
+    UNUSED_PARAMETER(_effect);
     obs_transition_video_render(this->source, [](void *data, gs_texture_t *a, gs_texture_t *b, float t, uint32_t cx,
                                                  uint32_t cy)
                                 { static_cast<stinger_3D_transition *>(data)->transition_callback(a, b, t, cx, cy); });
@@ -232,12 +232,12 @@ bool stinger_3D_transition::render_audio(uint64_t *ts_out, obs_source_audio_mix 
                                        { return t; });
 }
 
-stinger_3D_transition::stinger_3D_transition(obs_data_t *settings, obs_source_t *source)
+stinger_3D_transition::stinger_3D_transition(obs_data_t *settings, obs_source_t *tr_source)
 {
     blog(LOG_INFO, "----- Creating Stream Transition...");
-    gs_effect_t *effect;
+    gs_effect_t *new_effect;
 
-    this->source = source;
+    this->source = tr_source;
     char *file = obs_module_file("transition.effect");
     if (file == NULL)
     {
@@ -247,13 +247,13 @@ stinger_3D_transition::stinger_3D_transition(obs_data_t *settings, obs_source_t 
 
     obs_enter_graphics();
     char **error_string = (char **)bmalloc(sizeof(char) * 2048);
-    effect = gs_effect_create_from_file(file, error_string);
+    new_effect = gs_effect_create_from_file(file, error_string);
     obs_leave_graphics();
 
-    this->effect = effect;
-    this->aparam = gs_effect_get_param_by_name(effect, "tex_a");
-    this->bparam = gs_effect_get_param_by_name(effect, "tex_b");
-    this->tparam = gs_effect_get_param_by_name(effect, "t");
+    this->effect = new_effect;
+    this->aparam = gs_effect_get_param_by_name(new_effect, "tex_a");
+    this->bparam = gs_effect_get_param_by_name(new_effect, "tex_b");
+    this->tparam = gs_effect_get_param_by_name(new_effect, "t");
 
     bfree(file);
     blog(LOG_INFO, "Stream transition created !");

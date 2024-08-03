@@ -23,7 +23,7 @@ namespace Stinger3D
             return t2 + start;
         case SINUSOIDAL:
         {
-            val = -(amplitude - start) * (cosf(M_PI * (input - offset)) - 1.0f) / 2.0f + start;
+            val = -(amplitude - start) * (cosf((float)M_PI * (input - offset)) - 1.0f) / 2.0f + start;
             return val;
         }
         case QUADRATIC:
@@ -119,8 +119,8 @@ namespace Stinger3D
 
     void InterpolationData::render_frame(float time)
     {
-        int lowerFramei = (int)floor(raw_frames.size() * time);
-        int upperFramei = (int)ceil(raw_frames.size() * time);
+        int lowerFramei = (int)floor((float)raw_frames.size() * time);
+        int upperFramei = (int)ceil((float)raw_frames.size() * time);
         float currentFramei = ((float)raw_frames.size()) * time;
         float coi = currentFramei - (float)lowerFramei;
 
