@@ -2,7 +2,7 @@
 .DS_Store
 /build/
 /build32/
-/build64/
+/build_x64/
 /cmake-build-debug
 /cmake-build-release
 /release/
@@ -11,6 +11,7 @@
 
 .vscode
 .idea
+.deps/*
 
 # ignore generated files
 *.generated.*
